@@ -76,5 +76,3 @@ Contributions welcome! You can add new responses, improve the GUI, or enhance th
 **Hifsa Shahid**
 
 ```
-
-
