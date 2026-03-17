@@ -2,7 +2,7 @@
 
 A supportive mental health chatbot built entirely in **Python** using **Tkinter**. This chatbot runs offline and provides empathetic conversation, coping strategies, and general mental health guidance.
 
-> ⚠️ **Disclaimer:** This chatbot is **not a substitute for professional therapy or medical advice**. If you are in crisis, please contact local emergency services or mental health hotlines.
+>  **Disclaimer:** This chatbot is **not a substitute for professional therapy or medical advice**. If you are in crisis, please contact local emergency services or mental health hotlines.
 
 
 ## Features
