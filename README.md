@@ -1,78 +1,111 @@
 # Mental Health Chatbot
 
-A supportive mental health chatbot built entirely in **Python** using **Tkinter**. This chatbot runs offline and provides empathetic conversation, coping strategies, and general mental health guidance.
+A supportive mental health chatbot built in **Python**. It uses a small neural network (TensorFlow/Keras) to classify what the user is talking about (their *intent*) and replies with a matching supportive message through a desktop chat window built with **CustomTkinter**.
 
->  **Disclaimer:** This chatbot is **not a substitute for professional therapy or medical advice**. If you are in crisis, please contact local emergency services or mental health hotlines.
-
+> **Disclaimer:** This chatbot is **not a substitute for professional therapy or medical advice**. If you are in crisis, please contact your local emergency services or a mental health helpline. A global directory is available at [findahelpline.com](https://findahelpline.com).
 
 ## Features
 
-- **Conversational Support** – Chat with a friendly, empathetic bot.  
-- **Coping Strategies** – Provides simple techniques for stress, anxiety, and low mood.  
-- **Predefined Responses** – Offline chatbot with rule-based responses.  
-- **Simple GUI** – Easy-to-use Tkinter interface for desktop users.  
-- **No Internet Required** – Fully self-contained.
+- **Intent classification:** a neural network trained on 85 intents and 6,282 example patterns (greetings, sadness, stress, anxiety, sleep, motivation, confidence, panic attacks, trauma, mental-health facts, and more).
+- **Supportive responses:** each intent has a set of written responses (about 6,000 in total), and the bot picks one at random so replies do not feel repetitive.
+- **Confidence threshold:** if the model is less than 80% confident, the bot asks the user to explain more instead of guessing.
+- **Desktop GUI:** a dark-themed chat window built with CustomTkinter. Press **Enter** or click **Send**.
+- **Runs locally:** after the one-time setup, no internet connection or API is needed.
+
+## How It Works
+
+1. **Preprocessing:** each pattern in `intents.json` is tokenized with NLTK and reduced to its stem with the Porter stemmer.
+2. **Bag-of-words:** every sentence becomes a vector over a 1,497-word stemmed vocabulary (`words.npy`).
+3. **Model:** a feed-forward network with a 128-unit dense layer, dropout (0.5), a 64-unit dense layer, dropout (0.5), and a softmax output over the 85 intents. It is trained with Adam and categorical cross-entropy for 300 epochs (batch size 8).
+4. **Prediction:** the GUI converts the user's message to a bag-of-words vector, predicts the intent, and returns a random response from that intent (or a fallback message if confidence is 0.80 or lower).
+
+> Each message is classified on its own. The bot does not remember earlier messages in the conversation.
+
+## Project Structure
+
+```
+Mental-Health-Chatbot/
+├── intents.json      # Intents, example patterns, and responses
+├── train.py          # Builds the dataset, trains the model, saves the files below
+├── chat_model.h5     # Trained Keras model
+├── words.npy         # Stemmed vocabulary
+├── labels.npy        # Intent labels
+└── chatbot_gui.py    # CustomTkinter chat application
+```
 
 ## Technologies Used
 
-- **Language:** Python 3.x  
-- **GUI:** Tkinter (built-in Python library)  
-- **Data Storage:** Optional local storage for conversation history (plain text).  
-- **Dependencies:** Only built-in Python modules.
+- **Language:** Python 3.x
+- **Machine learning:** TensorFlow / Keras, NumPy
+- **NLP:** NLTK (tokenization, Porter stemmer)
+- **GUI:** CustomTkinter
 
 ## Installation
 
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/mental-health-chatbot.git
-
-2. Run the chatbot:
 
    ```bash
-   python chatbot_gui.py
+   git clone https://github.com/Hifsa-Shahid/Mental-Health-Chatbot.git
+   cd Mental-Health-Chatbot
    ```
 
-> No external libraries or internet connection required.
+2. Install the dependencies:
+
+   ```bash
+   pip install tensorflow nltk numpy customtkinter
+   ```
+
+3. Download the NLTK tokenizer data (one time only):
+
+   ```python
+   import nltk
+   nltk.download('punkt')
+   nltk.download('punkt_tab')
+   ```
 
 ## Usage
 
-1. Open the GUI application.
-2. Type your message in the input box and press **Send**.
-3. The chatbot will respond with pre-defined supportive messages.
+**Run the chatbot** (the trained model is already included):
 
+```bash
+python chatbot_gui.py
+```
 
+Type a message in the input box and press **Enter** or click **Send**.
 
-## Supported Inputs and Responses
+**Retrain the model** (optional, after editing `intents.json`):
 
-* **Greetings:**
+```bash
+python train.py
+```
 
-  * User: "Hello" → Bot: "Hi there! How are you feeling today?"
-* **Feeling sad/anxious:**
+This regenerates `chat_model.h5`, `words.npy`, and `labels.npy`.
 
-  * User: "I'm feeling sad" → Bot: "I'm sorry you're feeling this way. Try taking a deep breath and maybe go for a short walk."
-* **Stress:**
+## Example Conversations
 
-  * User: "I'm stressed" → Bot: "Stress can be tough. Consider trying a relaxing activity or talking to someone you trust."
-* **Good mood:**
+| User says | Intent detected | Bot behavior |
+| --- | --- | --- |
+| "Hello" | greeting | Replies with a friendly greeting |
+| "I'm feeling sad" | sad | Replies with a supportive message |
+| "I'm so stressed" | stressed | Replies with a stress-related supportive message |
+| Unclear or unrelated text | none (confidence ≤ 0.80) | "I'm not sure I understand. Can you explain more?" |
 
-  * User: "I'm happy" → Bot: "That's wonderful! Keep doing what makes you happy."
+Responses are chosen randomly from each intent's list, so exact wording varies.
 
-You can expand responses by editing the chatbot logic in `chatbot_gui.py`.
+## Customizing
 
-## Important Notes
+To add topics or responses, edit `intents.json`: add a new intent with a `tag`, example `patterns`, and `responses`, then run `python train.py` to retrain.
 
-* **Not a replacement for professional help:**
+## Limitations
 
-  * **Global Directory:** [https://findahelpline.com](https://findahelpline.com)
-
-* **Privacy:** Conversations are only stored in memory unless explicitly saved to a file.
+- The bot only recognizes topics that exist in `intents.json` and matches by vocabulary, so unusual phrasing or misspellings may be misunderstood.
+- It has no memory of previous messages and does not store conversations.
+- Model accuracy on unseen messages has not been formally measured.
 
 ## Contributing
 
-Contributions welcome! You can add new responses, improve the GUI, or enhance the chatbot’s logic. Submit issues or pull requests.
+Contributions are welcome. You can add new intents and responses, improve the model or its evaluation, or enhance the GUI. Please open an issue or submit a pull request.
 
 ## Author
 
 **Hifsa Shahid**
-
-```
